@@ -49,14 +49,14 @@ public class ChessUIFX extends Application {
 //&#9823; = ♟
 
     public ChessUIFX() {
-        figures.put(0, "♜");
+        figures.put(0, "♖");
         figures.put(1, "♘");
         figures.put(2, "♗");
         figures.put(3, "♕");
         figures.put(4, "♔");
         figures.put(5, "♗");
         figures.put(6, "♘");
-        figures.put(7, "♜");
+        figures.put(7, "♖");
         IntStream.range(8, 16).forEach(i -> figures.put(i, "♙"));  //weisser Bauer
         
         IntStream.range(48, 56).forEach(i -> figures.put(i, "♟")); //schwarzer Bauer
