@@ -25,35 +25,32 @@ import java.util.stream.IntStream;
 import javafx.animation.RotateTransition;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import org.scenicview.ScenicView;
 
 /**
  *
  * @author MICHELB
  */
 public class ChessUIFX extends Application {
+
     private int style = 0;
     private Stage stage;
-    
+
     private final Map<Integer, String> figures = new HashMap<Integer, String>();
-    
+
 //&#9812; = ♔
 //&#9813; = ♕
 //&#9814; = ♖
@@ -66,95 +63,101 @@ public class ChessUIFX extends Application {
 //&#9821; = ♝
 //&#9822; = ♞
 //&#9823; = ♟
-
     public ChessUIFX() {
-        figures.put(0, "♖");
-        figures.put(1, "♘");
-        figures.put(2, "♗");
-        figures.put(3, "♔");
-        figures.put(4, "♕");
-        figures.put(5, "♗");
-        figures.put(6, "♘");
-        figures.put(7, "♖");
-        IntStream.range(8, 16).forEach(i -> figures.put(i, "♙"));  //weisser Bauer
-        
-        IntStream.range(48, 56).forEach(i -> figures.put(i, "♟")); //schwarzer Bauer
-        figures.put(56, "♜");
-        figures.put(57, "♞");
-        figures.put(58, "♝");
-        figures.put(59, "♚");
-        figures.put(60, "♛");
-        figures.put(61, "♝");
-        figures.put(62, "♞");
-        figures.put(63, "♜");
+        figures.put(56, "♖");
+        figures.put(57, "♘");
+        figures.put(58, "♗");
+        figures.put(59, "♕");
+        figures.put(60, "♔");
+        figures.put(61, "♗");
+        figures.put(62, "♘");
+        figures.put(63, "♖");
+        IntStream.range(48, 56).forEach(i -> figures.put(i, "♙"));  //weisser Bauer
+
+        IntStream.range(8, 16).forEach(i -> figures.put(i, "♟")); //schwarzer Bauer
+        figures.put(0, "♜");
+        figures.put(1, "♞");
+        figures.put(2, "♝");
+        figures.put(3, "♛");
+        figures.put(4, "♚");
+        figures.put(5, "♝");
+        figures.put(6, "♞");
+        figures.put(7, "♜");
     }
 
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
         stage.initStyle(StageStyle.DECORATED);
-        final double width = 100f;
-        final double heigth = 100f;
+        double width = 80f;
+        double heigth = 80f;
         BorderPane root = new BorderPane();
         Pane chessboardContainer = new Pane();
+        chessboardContainer.getStyleClass().add("board");
         root.setCenter(chessboardContainer);
-        chessboardContainer.getStylesheets().add(ChessUIFX.class.getResource("ChessUIFX.css").toExternalForm());    //load css
+        Text fontTest = new Text("ponmn");
+        fontTest.getStyleClass().add("piece");
+        root.setBottom(fontTest);
         Scene scene = new Scene(root, width * 8, heigth * 8);
-        
+        chessboardContainer.getStylesheets().add(this.getClass().getResource("chess.css").toExternalForm());
+
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
                 Rectangle rectangle = new Rectangle(heigth, width);
-                rectangle.setLayoutX((rectangle.getWidth()) * x);
-                rectangle.setLayoutY((rectangle.getHeight())* y);
-                if ((x+1 * y+1)%2 == 0) {
-                    rectangle.getStyleClass().add("white");
-                } else {
+                rectangle.setLayoutX(rectangle.getWidth() * x);
+                rectangle.setLayoutY(rectangle.getHeight() * y);
+                if ((x + 1 * y + 1) % 2 == 0)  {
                     rectangle.getStyleClass().add("black");
+                    rectangle.getStyleClass().add("field");
+                } else {
+                    rectangle.getStyleClass().add("white");
+                    rectangle.getStyleClass().add("field");
                 }
-                
+
                 rectangle.widthProperty().bind(Bindings.divide(chessboardContainer.widthProperty(), 8d));
                 rectangle.heightProperty().bind(Bindings.divide(chessboardContainer.heightProperty(), 8d));
-
+               
                 StackPane stackPane = new StackPane(rectangle);
+                stackPane.getStyleClass().add("fieldWrapper");
                 
                 stackPane.layoutXProperty().bind(Bindings.multiply(x, Bindings.divide(chessboardContainer.widthProperty(), 8d)));
                 stackPane.layoutYProperty().bind(Bindings.multiply(y, Bindings.divide(chessboardContainer.heightProperty(), 8d)));
-                
+
                 //find Figure
-                String figure = figures.get(x + 8*y);// + x + "/" + y;
+                String figure = figures.get(x + 8 * y);
                 if (null != figure) {
-                    final Text text = new Text(figure);
-                    text.getStyleClass().add("text");
-                    
-                    text.setOnMouseClicked(e -> {
-                        RotateTransition rotateTransition = new RotateTransition(Duration.seconds(3), text);
+                    final Label piece = new Label(figure);
+                    piece.getStyleClass().add("piece");
+
+                    piece.setOnMouseClicked(e -> {
+                        RotateTransition rotateTransition = new RotateTransition(Duration.seconds(3), piece);
                         rotateTransition.setFromAngle(0d);
                         rotateTransition.setByAngle(360d);
                         rotateTransition.play();
-                            });
-                    
-                    stackPane.getChildren().add(text);
-                    stackPane.rotateProperty().bind(chessboardContainer.rotateProperty().negate()); //rotate text nodes
+                    });
+
+                    stackPane.getChildren().add(piece);
+                    stackPane.rotateProperty().bind(chessboardContainer.rotateProperty().negate());
                 }
 
                 chessboardContainer.getChildren().add(stackPane);
             }
         }
+
+        MenuBar bar = new MenuBar();
+        Menu menu = new Menu("Actions");
+        MenuItem rotateBoard = new MenuItem("Rotate board");
+        rotateBoard.setOnAction(e -> chessboardContainer.rotateProperty().set(chessboardContainer.rotateProperty().get()+180));
         
-        MenuBar menuBar = new MenuBar();
-        Menu actionsMenu = new Menu("Actions");
-        menuBar.getMenus().add(actionsMenu);
-        MenuItem item = new MenuItem("Rotate Board");
-        actionsMenu.getItems().add(item);
+        MenuItem scenicView = new MenuItem("ScenicView");
+        scenicView.setOnAction(e -> ScenicView.show(scene));
+
+        menu.getItems().addAll(rotateBoard, scenicView);
+
+        bar.getMenus().add(menu);
         
-        item.setOnAction(event -> {
-            chessboardContainer.rotateProperty().set(chessboardContainer.rotateProperty().get() + 180);
-//            chessboardContainer.getChildren().forEach(node -> node.rotateProperty().set(node.rotateProperty().get()-180));//rotate text nodes
-        });
-        
-        menuBar.useSystemMenuBarProperty();
-        root.setTop(menuBar);
-        
+        bar.setUseSystemMenuBar(false);
+        root.setTop(bar);
         primaryStage.setTitle("JUG Bodensee ChessUIFX");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -166,5 +169,5 @@ public class ChessUIFX extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
+
 }
